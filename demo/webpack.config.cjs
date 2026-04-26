@@ -3,15 +3,14 @@ const webpack = require("webpack");
 
 module.exports = {
   context: path.resolve(__dirname),
-
   entry: "./index.js",
-
   output: {
     path: path.resolve(__dirname, "./"),
-    // the output bundle
     filename: "./bundle.js",
   },
-
+  resolve: {
+    extensions: [".js", ".json"],
+  },
   module: {
     rules: [
       {
@@ -23,20 +22,19 @@ module.exports = {
         use: "babel-loader",
         exclude: /node_modules/,
       },
+      {
+        test: /\.m?js/,
+        resolve: { fullySpecified: false },
+      },
     ],
   },
-
   plugins: [
-    // enable HMR globally
     new webpack.HotModuleReplacementPlugin(),
-
-    // do not emit compiled assets that include errors
     new webpack.NoEmitOnErrorsPlugin(),
   ],
-
   devServer: {
     host: "127.0.0.1",
-    port: 8090,
+    port: 8095,
     historyApiFallback: false,
     hot: true,
     static: path.join(__dirname),
