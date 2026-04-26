@@ -1,0 +1,35 @@
+##############################################
+# FILE GENERATED AUTOMATICALLY FROM TERRAFORM
+# THIS FILE SHOULD NOT BE EDITED BY HAND
+##############################################
+
+name: Build package
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - "renovate/**"
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    env:
+      HUSKY_SKIP_HOOKS: 1
+      HUSKY: 0
+    strategy:
+      matrix:
+        node: [18, 20]
+        os: [ubuntu-latest, macos-latest]
+    name: Building on ${{ matrix.os }} and node ${{ matrix.node }}
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - name: Setup node
+        uses: actions/setup-node@v4.1.0
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install dependancies
+        run: npm i
+      - name: Build package
+        run: npm run build

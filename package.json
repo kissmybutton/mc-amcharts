@@ -1,0 +1,89 @@
+{
+  "name": "@kissmybutton/mc-amcharts",
+  "version": "0.1.0",
+  "description": "amCharts 5 plugin for MotorCortex — timeline-controlled animated charts",
+  "main": "dist/bundle.cjs.js",
+  "module": "dist/bundle.esm.js",
+  "browser": "dist/bundle.umd.js",
+  "type": "module",
+  "author": "Donkeyclip",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kissmybutton/mc-amcharts.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=16"
+  },
+  "scripts": {
+    "lint": "eslint -c .eslintrc src/**/*.js",
+    "lint:fix": "npm run lint -- --fix",
+    "build": "npm run build:lib && npm run build:demo",
+    "build:lib": "rollup -c",
+    "start": "npm run build:lib && concurrently -c \"cyan.bold,magenta.bold\" \"npm:build:lib -- -w\"  \"npm:start:demo\" ",
+    "start:demo": "webpack serve --mode=development --config ./demo/webpack.config.cjs",
+    "build:demo": "webpack --mode=production --config ./demo/webpack.config.cjs",
+    "test": "echo \"No tests yet\"",
+    "test:prod": "npm run lint",
+    "prepare": "husky install"
+  },
+  "keywords": [
+    "motorcortex",
+    "amcharts",
+    "charts",
+    "animation"
+  ],
+  "lint-staged": {
+    "*.{json,md,yml,yaml,css}": [
+      "prettier --write"
+    ],
+    "*.{js,jsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
+  },
+  "peerDependencies": {
+    "@donkeyclip/motorcortex": ">=8 < 10"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.23.4",
+    "@babel/core": "^7.23.3",
+    "@babel/eslint-parser": "^7.23.3",
+    "@babel/plugin-syntax-import-assertions": "^7.23.3",
+    "@babel/plugin-syntax-jsx": "^7.23.3",
+    "@babel/plugin-transform-react-jsx": "^7.22.15",
+    "@babel/preset-env": "^7.23.3",
+    "@babel/preset-react": "^7.23.3",
+    "@donkeyclip/motorcortex": "^9.23.10",
+    "@donkeyclip/motorcortex-player": "^2.15.18",
+    "@rollup/plugin-babel": "6.0.4",
+    "@rollup/plugin-commonjs": "25.0.8",
+    "@rollup/plugin-json": "6.1.0",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "babel-loader": "9.2.1",
+    "concurrently": "^9.0.0",
+    "core-js": "^3.33.3",
+    "css-loader": "6.11.0",
+    "eslint": "^8.54.0",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-plugin-babel": "5.3.1",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-prettier": "5.2.1",
+    "eslint-plugin-promise": "6.6.0",
+    "eslint-plugin-react": "^7.33.2",
+    "husky": "8.0.3",
+    "lint-staged": "^15.0.0",
+    "prettier": "3.4.2",
+    "rimraf": "5.0.10",
+    "rollup": "4.28.1",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.89.0",
+    "webpack-cli": "5.1.4",
+    "webpack-dev-server": "4.15.2"
+  },
+  "dependencies": {
+    "@amcharts/amcharts5": "^5.12.0",
+    "@rollup/plugin-terser": "^0.4.4"
+  }
+}

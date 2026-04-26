@@ -1,0 +1,14 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": "defaults, not ie 11",
+        "corejs": "3.21"
+      }
+    ]
+  ],
+  "plugins": [
+    "@babel/plugin-syntax-import-assertions"
+  ]
+}
