@@ -1,5 +1,4 @@
 import { Effect } from "@donkeyclip/motorcortex";
-import * as am5 from "@amcharts/amcharts5";
 
 /**
  * ChartAttr — MC Effect for animating amCharts properties.
@@ -24,8 +23,8 @@ export default class ChartAttr extends Effect {
     if (key === "opacity") {
       return entity?.chart?.get("opacity") ?? 1;
     }
-    if (key === "highlightIndex") {
-      return -1; // no highlight initially
+    if (key.startsWith("chartItemOpacity_")) {
+      return 1; // items start fully visible
     }
     return 0;
   }
@@ -46,10 +45,14 @@ export default class ChartAttr extends Effect {
 
     if (key === "dataProgress") {
       if (chartType === "pie" || chartType === "donut") {
+        // Fade in gradually while fan-in progresses
+        chart.set("opacity", current);
         series.set("endAngle", -90 + 360 * current);
+      } else if (chartType === "line" || chartType === "area") {
+        // Line/area: fade in via opacity
+        chart.set("opacity", current);
       } else {
-        // XY charts: directly set column heights from 0 → full
-        // Capture full-size state on first call
+        // Vertical column: grow height from bottom
         if (!this._columnState && series.columns) {
           this._columnState = [];
           series.columns.each((col) => {
@@ -58,17 +61,16 @@ export default class ChartAttr extends Effect {
             this._columnState.push({ col, fullHeight: h, baseY: y + h });
           });
           if (this._columnState.length === 0) {
-            this._columnState = null; // retry next frame
+            this._columnState = null;
           } else {
-            // Make chart visible now that we control column heights
-            chart.set("opacity", 1);
-            // Immediately collapse columns to 0
             for (const s of this._columnState) {
               s.col.set("height", 0);
               s.col.set("y", s.baseY);
             }
           }
         }
+        // Fade chart in gradually (labels + bars together)
+        chart.set("opacity", current);
         if (this._columnState) {
           for (const s of this._columnState) {
             const h = s.fullHeight * current;
@@ -79,58 +81,27 @@ export default class ChartAttr extends Effect {
       }
     } else if (key === "opacity") {
       chart.set("opacity", current);
-    } else if (key === "highlightIndex") {
-      const idx = Math.round(target);
-      const highlightColor = this.attrs.highlightColor || "#e76f51";
+    } else if (key.startsWith("chartItemOpacity_")) {
+      // Animate opacity on a single chart item (bar/slice).
+      // The index is encoded in the attribute key: chartItemOpacity_0, chartItemOpacity_1, etc.
+      const idx = parseInt(key.split("_").pop(), 10);
       const columns = series.columns;
       const slices = series.slices;
 
-      // Capture original colors on first call
-      if (!this._originalColors) {
-        this._originalColors = [];
-        const items = columns || slices;
-        if (items) {
-          items.each((item, i) => {
-            this._originalColors.push(
-              item.get("fill") || series.get("colors")?.getIndex(i),
-            );
-          });
-        }
-        if (this._originalColors.length === 0) {
-          this._originalColors = null; // retry next frame
-        }
-      }
-
       if (columns) {
+        let count = 0;
         columns.each((col, i) => {
-          const origColor = this._originalColors[i];
-          if (fraction < 0.01) {
-            // Fully reversed — restore everything
-            if (origColor) col.set("fill", origColor);
-            col.set("opacity", 1);
-          } else if (i === idx) {
-            col.set("fill", am5.color(highlightColor));
-            col.set("opacity", 1);
-          } else {
-            if (origColor) col.set("fill", origColor);
-            col.set("opacity", 1 - 0.7 * fraction);
-          }
+          if (i === idx) col.set("opacity", current);
+          count++;
         });
+        if (count === 0) return;
       } else if (slices) {
+        let count = 0;
         slices.each((slice, i) => {
-          const origColor = this._originalColors[i];
-          if (fraction < 0.01) {
-            if (origColor) slice.set("fill", origColor);
-            slice.set("opacity", 1);
-            slice.set("scale", 1);
-          } else if (i === idx) {
-            slice.set("fill", am5.color(highlightColor));
-            slice.set("scale", 1 + 0.1 * fraction);
-          } else {
-            if (origColor) slice.set("fill", origColor);
-            slice.set("opacity", 1 - 0.7 * fraction);
-          }
+          if (i === idx) slice.set("opacity", current);
+          count++;
         });
+        if (count === 0) return;
       }
     }
   }

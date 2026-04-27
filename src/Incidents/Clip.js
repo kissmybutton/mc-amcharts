@@ -19,7 +19,7 @@ import * as am5percent from "@amcharts/amcharts5/percent";
  */
 export default class ChartClip extends BrowserClip {
   get html() {
-    return '<div style="width:100%;height:100%;position:relative;"><div id="chartroot" style="width:100%;height:100%;"></div></div>';
+    return '<div style="width:100%;height:100%;position:relative;display:flex;align-items:center;justify-content:center;"><div id="chartroot" style="width:80%;height:80%;"></div></div>';
   }
 
   onAfterRender() {
@@ -89,19 +89,25 @@ export default class ChartClip extends BrowserClip {
       }),
     );
 
-    // Category axis (X for bar/column, Y for horizontal bar)
+    const fontStyle = {
+      fontFamily: "Comic Sans MS, Comic Sans, cursive",
+      fill: am5.color("#2c3e50"),
+    };
+
+    const xRenderer = am5xy.AxisRendererX.new(root, { minGridDistance: 30 });
+    xRenderer.grid.template.set("visible", false);
+    xRenderer.labels.template.setAll({ ...fontStyle, fontSize: 13 });
     const xAxis = chart.xAxes.push(
-      am5xy.CategoryAxis.new(root, {
-        categoryField,
-        renderer: am5xy.AxisRendererX.new(root, { minGridDistance: 30 }),
-      }),
+      am5xy.CategoryAxis.new(root, { categoryField, renderer: xRenderer }),
     );
     xAxis.data.setAll(data);
 
-    // Value axis
+    const yRenderer = am5xy.AxisRendererY.new(root, {});
+    yRenderer.grid.template.set("visible", false);
+    yRenderer.labels.template.setAll({ ...fontStyle, fontSize: 12 });
     const yAxis = chart.yAxes.push(
       am5xy.ValueAxis.new(root, {
-        renderer: am5xy.AxisRendererY.new(root, {}),
+        renderer: yRenderer,
         min: 0,
         interpolationDuration: 0,
       }),
@@ -123,8 +129,20 @@ export default class ChartClip extends BrowserClip {
         series.fills.template.setAll({ visible: true, fillOpacity: 0.3 });
       }
       series.strokes.template.setAll({ strokeWidth: 2 });
+
+      // Add visible data point bullets
+      series.bullets.push(() =>
+        am5.Bullet.new(root, {
+          sprite: am5.Circle.new(root, {
+            radius: 5,
+            fill: series.get("fill"),
+            stroke: am5.color("#ffffff"),
+            strokeWidth: 2,
+          }),
+        }),
+      );
     } else {
-      // bar / column — disable amCharts interpolation so MC drives values directly
+      // Vertical column
       series = chart.series.push(
         am5xy.ColumnSeries.new(root, {
           xAxis,
@@ -155,6 +173,18 @@ export default class ChartClip extends BrowserClip {
     // Set full data — dataProgress effect will scale columns from 0→1
     series.data.setAll(data);
 
+    // Default app color palette if none provided
+    if (!attrs.colors) {
+      series.set(
+        "colors",
+        am5.ColorSet.new(root, {
+          colors: ["#264653", "#2a9d8f", "#e9c46a", "#f4a261", "#e76f51"].map(
+            (c) => am5.color(c),
+          ),
+        }),
+      );
+    }
+
     // Start with chart hidden — the dataProgress Effect reveals it
     chart.set("opacity", 0);
 
@@ -165,6 +195,8 @@ export default class ChartClip extends BrowserClip {
           text: attrs.title,
           fontSize: 18,
           fontWeight: "500",
+          fontFamily: "Comic Sans MS, Comic Sans, cursive",
+          fill: am5.color("#2c3e50"),
           textAlign: "center",
           x: am5.percent(50),
           centerX: am5.percent(50),
@@ -206,17 +238,32 @@ export default class ChartClip extends BrowserClip {
       tooltipText: "{category}: {value}",
     });
 
-    // Apply colors if provided
-    if (attrs.colors) {
-      series.set(
-        "colors",
-        am5.ColorSet.new(root, {
-          colors: attrs.colors.map((c) => am5.color(c)),
-        }),
-      );
-    }
+    series.labels.template.setAll({
+      fontFamily: "Comic Sans MS, Comic Sans, cursive",
+      fontSize: 13,
+      fill: am5.color("#2c3e50"),
+    });
+
+    // Apply colors — default to app palette
+    series.set(
+      "colors",
+      am5.ColorSet.new(root, {
+        colors: (
+          attrs.colors || [
+            "#264653",
+            "#2a9d8f",
+            "#e9c46a",
+            "#f4a261",
+            "#e76f51",
+          ]
+        ).map((c) => am5.color(c)),
+      }),
+    );
 
     series.data.setAll(data);
+
+    // Start hidden — dataProgress Effect reveals it
+    chart.set("opacity", 0);
 
     // Title
     if (attrs.title) {
@@ -225,6 +272,8 @@ export default class ChartClip extends BrowserClip {
           text: attrs.title,
           fontSize: 18,
           fontWeight: "500",
+          fontFamily: "Comic Sans MS, Comic Sans, cursive",
+          fill: am5.color("#2c3e50"),
           textAlign: "center",
           x: am5.percent(50),
           centerX: am5.percent(50),
