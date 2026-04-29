@@ -88,20 +88,36 @@ export default class ChartAttr extends Effect {
       const columns = series.columns;
       const slices = series.slices;
 
-      if (columns) {
+      if (columns && columns.length > 0) {
         let count = 0;
         columns.each((col, i) => {
           if (i === idx) col.set("opacity", current);
           count++;
         });
         if (count === 0) return;
-      } else if (slices) {
+      } else if (slices && slices.length > 0) {
         let count = 0;
         slices.each((slice, i) => {
           if (i === idx) slice.set("opacity", current);
           count++;
         });
         if (count === 0) return;
+      } else {
+        // Line/area charts: target the bullet (dot) at this data index
+        const dataItem = series.dataItems[idx];
+        if (dataItem && dataItem.bullets) {
+          for (const bullet of dataItem.bullets) {
+            const sprite = bullet.get("sprite");
+            if (sprite) {
+              sprite.set("opacity", current);
+              // Also scale up slightly when visible for emphasis
+              sprite.set(
+                "scale",
+                current < 0.5 ? 1 : 1 + (current - 0.5) * 1.5,
+              );
+            }
+          }
+        }
       }
     }
   }
