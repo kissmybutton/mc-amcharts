@@ -110,11 +110,6 @@ export default class ChartAttr extends Effect {
             const sprite = bullet.get("sprite");
             if (sprite) {
               sprite.set("opacity", current);
-              // Also scale up slightly when visible for emphasis
-              sprite.set(
-                "scale",
-                current < 0.5 ? 1 : 1 + (current - 0.5) * 1.5,
-              );
             }
           }
         }
