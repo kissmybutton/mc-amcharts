@@ -26,6 +26,9 @@ export default class ChartAttr extends Effect {
     if (key.startsWith("chartItemOpacity_")) {
       return 1; // items start fully visible
     }
+    if (key.startsWith("chartItemScale_")) {
+      return 1; // items start at normal scale
+    }
     return 0;
   }
 
@@ -111,6 +114,28 @@ export default class ChartAttr extends Effect {
             if (sprite) {
               sprite.set("opacity", current);
             }
+          }
+        }
+      }
+    } else if (key.startsWith("chartItemScale_")) {
+      const idx = parseInt(key.split("_").pop(), 10);
+      const columns = series.columns;
+      const slices = series.slices;
+
+      if (columns && columns.length > 0) {
+        columns.each((col, i) => {
+          if (i === idx) col.set("scale", current);
+        });
+      } else if (slices && slices.length > 0) {
+        slices.each((slice, i) => {
+          if (i === idx) slice.set("scale", current);
+        });
+      } else {
+        const dataItem = series.dataItems[idx];
+        if (dataItem && dataItem.bullets) {
+          for (const bullet of dataItem.bullets) {
+            const sprite = bullet.get("sprite");
+            if (sprite) sprite.set("scale", current);
           }
         }
       }

@@ -1,6 +1,6 @@
 {
   "name": "@kissmybutton/mc-amcharts",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "amCharts 5 plugin for MotorCortex — timeline-controlled animated charts",
   "main": "dist/bundle.cjs.js",
   "module": "dist/bundle.esm.js",
@@ -43,7 +43,7 @@
     ]
   },
   "peerDependencies": {
-    "@donkeyclip/motorcortex": ">=8 < 10"
+    "@donkeyclip/motorcortex": ">=9.24.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.23.4",
@@ -54,7 +54,7 @@
     "@babel/plugin-transform-react-jsx": "^7.22.15",
     "@babel/preset-env": "^7.23.3",
     "@babel/preset-react": "^7.23.3",
-    "@donkeyclip/motorcortex": "^9.23.10",
+    "@donkeyclip/motorcortex": "^9.24.0",
     "@donkeyclip/motorcortex-player": "^2.15.18",
     "@rollup/plugin-babel": "6.0.4",
     "@rollup/plugin-commonjs": "25.0.8",
